@@ -14,7 +14,7 @@ class BaseTrainer:
 
         # setup GPU device if available, move model into configured device
         self.device, device_ids = self._prepare_device(config['n_gpu'])
-        # self.is_use_cuda = (len(device_ids) > 0)
+        self.is_use_cuda = (len(device_ids) > 0)
         self.model = model.to(self.device)
         if len(device_ids) > 1:
             self.model = torch.nn.DataParallel(model, device_ids=device_ids)

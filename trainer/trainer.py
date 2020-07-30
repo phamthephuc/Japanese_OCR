@@ -2,7 +2,7 @@ import numpy as np
 import torch
 from torchvision.utils import make_grid
 from base import BaseTrainer
-from utils import inf_loop, MetricTracker, strLabelConverter, averager
+from utils import inf_loop, MetricTracker, strLabelConverter, averager, loadData
 
 
 class Trainer(BaseTrainer):
@@ -31,14 +31,15 @@ class Trainer(BaseTrainer):
         self.train_metrics = MetricTracker('loss', *[m.__name__ for m in self.metric_ftns], writer=self.writer)
         self.valid_metrics = MetricTracker('loss', *[m.__name__ for m in self.metric_ftns], writer=self.writer)
 
-        # opt = config["data_loader"]["args"]
-        # self.image = torch.FloatTensor(opt["batchSize"], 3, opt["imgH"], opt["imgH"])
-        # self.text = torch.IntTensor(opt["batchSize"] * 5)
-        # self.length = torch.IntTensor(opt["batchSize"])
-        #
-        # if self.is_use_cuda:
-        #     self.image = self.image.cuda()
-        #     self.criterion = self.criterion.cuda()
+        opt = config["data_loader"]["args"]
+        batchSize = opt["batchSize"]
+        self.image = torch.FloatTensor(batchSize, 3, opt["imgH"], opt["imgH"])
+        self.text = torch.IntTensor(batchSize * 5)
+        self.length = torch.IntTensor(batchSize)
+
+        if self.is_use_cuda:
+            self.image = self.image.cuda()
+            self.criterion = self.criterion.cuda()
 
     def _train_epoch(self, epoch):
         """
@@ -51,28 +52,34 @@ class Trainer(BaseTrainer):
         self.train_metrics.reset()
         for batch_idx, (data, target) in enumerate(self.data_loader):
             batch_size = data.size(0)
-            data, target = data.to(self.device), target.to(self.device)
+            print("batch Size: ", batch_size)
+            # data, target = data.to(self.device), target.to(self.device)
 
             self.optimizer.zero_grad()
-            output = self.model(data)
-            text, length = self.converter.encode(target)
+
+            loadData(self.image, data)
+            output = self.model(self.image)
+            t, l = self.converter.encode(target)
+            loadData(self.text, t)
+            loadData(self.length, l)
+
             output_size = Variable(torch.IntTensor([output(0)] * batch_size))
-            loss = self.criterion(output, text, output_size, length)
+            loss = self.criterion(output, self.text, output_size, self.length)
 
             loss.backward()
             self.optimizer.step()
 
             self.writer.set_step((epoch - 1) * self.len_epoch + batch_idx)
             self.train_metrics.update('loss', loss.item())
-            for met in self.metric_ftns:
-                self.train_metrics.update(met.__name__, met(output, target))
+            # for met in self.metric_ftns:
+            #     self.train_metrics.update(met.__name__, met(output, target))
 
             if batch_idx % self.log_step == 0:
                 self.logger.debug('Train Epoch: {} {} Loss: {:.6f}'.format(
                     epoch,
                     self._progress(batch_idx),
                     loss.item()))
-                self.writer.add_image('input', make_grid(data.cpu(), nrow=8, normalize=True))
+                # self.writer.add_image('input', make_grid(data.cpu(), nrow=8, normalize=True))
 
             if batch_idx == self.len_epoch:
                 break
@@ -82,8 +89,8 @@ class Trainer(BaseTrainer):
         #     val_log = self._valid_epoch(epoch)
         #     log.update(**{'val_'+k : v for k, v in val_log.items()})
 
-        if self.lr_scheduler is not None:
-            self.lr_scheduler.step()
+        # if self.lr_scheduler is not None:
+        #     self.lr_scheduler.step()
         return log
 
     def _valid_epoch(self, epoch):
@@ -101,13 +108,18 @@ class Trainer(BaseTrainer):
         with torch.no_grad():
             for batch_idx, (data, target) in enumerate(self.valid_data_loader):
                 batch_size = data.size(0)
-                data, target = data.to(self.device), target.to(self.device)
+                # data, target = data.to(self.device), target.to(self.device)
 
                 text, length = self.converter.encode(target)
 
-                output = self.model(data)
+                loadData(self.image, data)
+                output = self.model(self.image)
+                t, l = self.converter.encode(target)
+                loadData(self.text, t)
+                loadData(self.length, l)
+
                 output_size = Variable(torch.IntTensor([output(0)] * batch_size))
-                loss = self.criterion(output, text, output_size, length)
+                loss = self.criterion(output, self.text, output_size, self.length)
                 loss_avg.add(loss)
 
                 self.writer.set_step((epoch - 1) * len(self.valid_data_loader) + batch_idx, 'valid')
