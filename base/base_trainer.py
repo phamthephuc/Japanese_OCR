@@ -14,6 +14,7 @@ class BaseTrainer:
 
         # setup GPU device if available, move model into configured device
         self.device, device_ids = self._prepare_device(config['n_gpu'])
+        # self.is_use_cuda = (len(device_ids) > 0)
         self.model = model.to(self.device)
         if len(device_ids) > 1:
             self.model = torch.nn.DataParallel(model, device_ids=device_ids)
@@ -25,6 +26,8 @@ class BaseTrainer:
         cfg_trainer = config['trainer']
         self.epochs = cfg_trainer['epochs']
         self.save_period = cfg_trainer['save_period']
+        self.valid_period = cfg_trainer['valid_period']
+        self.test_disp = cfg_trainer['test_disp']
         self.monitor = cfg_trainer.get('monitor', 'off')
 
         # configuration to monitor model performance and save best
@@ -52,6 +55,15 @@ class BaseTrainer:
     def _train_epoch(self, epoch):
         """
         Training logic for an epoch
+
+        :param epoch: Current epoch number
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def _valid_epoch(self, epoch):
+        """
+        valid logic for an epoch
 
         :param epoch: Current epoch number
         """
@@ -97,6 +109,9 @@ class BaseTrainer:
                     self.logger.info("Validation performance didn\'t improve for {} epochs. "
                                      "Training stops.".format(self.early_stop))
                     break
+
+            if epoch % self.valid_period == 0:
+                self._valid_epoch(epoch)
 
             if epoch % self.save_period == 0:
                 self._save_checkpoint(epoch, save_best=best)
