@@ -141,7 +141,7 @@ class Trainer(BaseTrainer):
         for raw_pred, pred, gt in zip(raw_preds, sim_preds, target):
             print('%-20s => %-20s, gt: %-20s' % (raw_pred, pred, gt))
 
-        accuracy = n_correct / float(max_iter * opt.batchSize)
+        accuracy = n_correct / float(max_iter * batch_size)
         print('Test loss: %f, accuray: %f' % (loss_avg.val(), accuracy))
 
         self.valid_metrics.update('loss', loss_avg.val())
