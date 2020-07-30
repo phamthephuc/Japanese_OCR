@@ -32,7 +32,7 @@ class Trainer(BaseTrainer):
         self.valid_metrics = MetricTracker('loss', *[m.__name__ for m in self.metric_ftns], writer=self.writer)
 
         opt = config["data_loader"]["args"]
-        batchSize = opt["batchSize"]
+        batchSize = opt["batch_size"]
         self.image = torch.FloatTensor(batchSize, 3, opt["imgH"], opt["imgH"])
         self.text = torch.IntTensor(batchSize * 5)
         self.length = torch.IntTensor(batchSize)
