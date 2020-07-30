@@ -69,8 +69,8 @@ class Trainer(BaseTrainer):
             loss.backward()
             self.optimizer.step()
 
-            self.writer.set_step((epoch - 1) * self.len_epoch + batch_idx)
-            self.train_metrics.update('loss', loss.item())
+            # self.writer.set_step((epoch - 1) * self.len_epoch + batch_idx)
+            # self.train_metrics.update('loss', loss.item())
             # for met in self.metric_ftns:
             #     self.train_metrics.update(met.__name__, met(output, target))
 
@@ -83,7 +83,7 @@ class Trainer(BaseTrainer):
 
             if batch_idx == self.len_epoch:
                 break
-        log = self.train_metrics.result()
+        # log = self.train_metrics.result()
 
         # if self.do_validation:
         #     val_log = self._valid_epoch(epoch)
@@ -91,7 +91,7 @@ class Trainer(BaseTrainer):
 
         # if self.lr_scheduler is not None:
         #     self.lr_scheduler.step()
-        return log
+        return {}
 
     def _valid_epoch(self, epoch):
         """
@@ -122,7 +122,7 @@ class Trainer(BaseTrainer):
                 loss = self.criterion(output, self.text, output_size, self.length)
                 loss_avg.add(loss)
 
-                self.writer.set_step((epoch - 1) * len(self.valid_data_loader) + batch_idx, 'valid')
+                # self.writer.set_step((epoch - 1) * len(self.valid_data_loader) + batch_idx, 'valid')
                 # self.valid_metrics.update('loss', loss_avg.val())
 
                 _, output = output.max(2)
@@ -144,9 +144,9 @@ class Trainer(BaseTrainer):
         accuracy = n_correct / float(max_iter * batch_size)
         print('Test loss: %f, accuray: %f' % (loss_avg.val(), accuracy))
 
-        self.valid_metrics.update('loss', loss_avg.val())
-        for met in self.metric_ftns:
-            self.valid_metrics.update(met.__name__, met(sim_preds, target))
+        # self.valid_metrics.update('loss', loss_avg.val())
+        # for met in self.metric_ftns:
+        #     self.valid_metrics.update(met.__name__, met(sim_preds, target))
 
         # # add histogram of model parameters to the tensorboard
         # for name, p in self.model.named_parameters():
