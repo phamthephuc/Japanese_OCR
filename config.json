@@ -33,7 +33,12 @@
             "amsgrad": true
         }
     },
-    "loss": "CTCLoss",
+    "loss": {
+        "type": "CTCLoss",
+        "args": {
+
+        }
+    },
     "metrics": [
         "accuracy"
     ],
