@@ -74,9 +74,9 @@ class Trainer(BaseTrainer):
             t, l = self.converter.encode(target)
             loadData(self.text, t)
             loadData(self.length, l)
-            print(target)
-            print(l)
-            print(t)
+            # print(target)
+            # print(l)
+            # print(t)
 
 
             output_size = Variable(torch.IntTensor([output.size(0)] * batch_size))
