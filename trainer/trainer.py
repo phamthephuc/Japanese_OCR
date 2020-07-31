@@ -67,7 +67,7 @@ class Trainer(BaseTrainer):
             loadData(self.length, l)
 
             output_size = Variable(torch.IntTensor([output.size(0)] * batch_size))
-            loss = self.criterion(output, self.text, output_size, self.length)
+            loss = self.criterion(output, self.text, output_size, self.length) / batch_size
 
             loss.backward()
             self.optimizer.step()
@@ -122,7 +122,7 @@ class Trainer(BaseTrainer):
                 loadData(self.length, l)
 
                 output_size = Variable(torch.IntTensor([output.size(0)] * batch_size))
-                loss = self.criterion(output, self.text, output_size, self.length)
+                loss = self.criterion(output, self.text, output_size, self.length) / batch_size
                 loss_avg.add(loss)
 
                 # self.writer.set_step((epoch - 1) * len(self.valid_data_loader) + batch_idx, 'valid')
