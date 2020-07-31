@@ -40,6 +40,9 @@ class Trainer(BaseTrainer):
         if self.is_use_cuda:
             self.image = self.image.cuda()
             self.criterion = self.criterion.cuda()
+        self.image = Variable(self.image)
+        self.text = Variable(self.text)
+        self.length = Variable(self.length)
 
     def _train_epoch(self, epoch):
         """
