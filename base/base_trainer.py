@@ -75,6 +75,10 @@ class BaseTrainer:
         """
         not_improved_count = 0
         for epoch in range(self.start_epoch, self.epochs + 1):
+            for p in self.model.parameters():
+                p.requires_grad = True
+            self.model.train()
+
             result = self._train_epoch(epoch)
 
             # save logged informations into log dict

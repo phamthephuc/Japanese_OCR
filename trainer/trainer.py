@@ -5,6 +5,13 @@ from base import BaseTrainer
 from utils import inf_loop, MetricTracker, strLabelConverter, averager, loadData
 from torch.autograd import Variable
 
+import matplotlib.pyplot as plt
+def imshow(img):
+    img = img / 2 + 0.5     # unnormalize
+    npimg = img.numpy()
+    plt.imshow(np.transpose(npimg, (1, 2, 0)))
+    plt.show()
+
 class Trainer(BaseTrainer):
     """
     Trainer class
@@ -55,6 +62,8 @@ class Trainer(BaseTrainer):
         self.train_metrics.reset()
         for batch_idx, (data, target) in enumerate(self.data_loader):
             batch_size = data.size(0)
+
+            # imshow(make_grid(data))
             # print("batch Size: ", batch_size)
             # data, target = data.to(self.device), target.to(self.device)
 
@@ -65,10 +74,14 @@ class Trainer(BaseTrainer):
             t, l = self.converter.encode(target)
             loadData(self.text, t)
             loadData(self.length, l)
+            print(target)
+            print(l)
+            print(t)
+
 
             output_size = Variable(torch.IntTensor([output.size(0)] * batch_size))
             loss = self.criterion(output, self.text, output_size, self.length) / batch_size
-
+            self.model.zero_grad()
             loss.backward()
             self.optimizer.step()
 
@@ -140,6 +153,7 @@ class Trainer(BaseTrainer):
                 #     self.valid_metrics.update(met.__name__, met(sim_preds, target))
                 # self.writer.add_image('input', make_grid(data.cpu(), nrow=8, normalize=True))
 
+        print("output: " , output.data)
         raw_preds = self.converter.decode(output.data, output_size.data, raw=True)[self.test_disp]
         for raw_pred, pred, gt in zip(raw_preds, sim_preds, target):
             print('%-20s => %-20s, gt: %-20s' % (raw_pred, pred, gt))
