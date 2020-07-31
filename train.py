@@ -13,7 +13,7 @@ from trainer import Trainer
 # fix random seeds for reproducibility
 SEED = 1234
 torch.manual_seed(SEED)
-torch.backends.cudnn.deterministic = True
+# torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = True
 np.random.seed(SEED)
 
