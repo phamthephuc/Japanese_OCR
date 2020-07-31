@@ -55,7 +55,7 @@ class Trainer(BaseTrainer):
         self.train_metrics.reset()
         for batch_idx, (data, target) in enumerate(self.data_loader):
             batch_size = data.size(0)
-            print("batch Size: ", batch_size)
+            # print("batch Size: ", batch_size)
             # data, target = data.to(self.device), target.to(self.device)
 
             self.optimizer.zero_grad()
