@@ -63,7 +63,7 @@ class Trainer(BaseTrainer):
         for batch_idx, (data, target) in enumerate(self.data_loader):
             batch_size = data.size(0)
 
-            imshow(make_grid(data))
+            # imshow(make_grid(data))
             # print("batch Size: ", batch_size)
             # data, target = data.to(self.device), target.to(self.device)
 
