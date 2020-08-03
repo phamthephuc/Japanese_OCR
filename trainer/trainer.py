@@ -153,8 +153,7 @@ class Trainer(BaseTrainer):
                 #     self.valid_metrics.update(met.__name__, met(sim_preds, target))
                 # self.writer.add_image('input', make_grid(data.cpu(), nrow=8, normalize=True))
 
-        raw_preds = self.converter.decode(output.data, output_size.data, raw=True)[self.test_disp]
-        print(raw_preds)
+        raw_preds = self.converter.decode(output.data, output_size.data, raw=True)[:self.test_disp]
         for raw_pred, pred, gt in zip(raw_preds, sim_preds, target):
             print('%-20s => %-20s, gt: %-20s' % (raw_pred, pred, gt))
 
