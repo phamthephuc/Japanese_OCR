@@ -50,10 +50,10 @@
         }
     },
     "trainer": {
-        "epochs": 1000,
+        "epochs": 150,
         "valid_period": 1,
         "save_dir": "saved/",
-        "save_period": 100,
+        "save_period": 50,
         "verbosity": 2,
         "test_disp": 10,
         "monitor": "off",
