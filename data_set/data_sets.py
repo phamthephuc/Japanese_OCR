@@ -6,7 +6,7 @@ import torch
 from torch.utils.data import Dataset
 from torch.utils.data import sampler
 import torchvision.transforms as transforms
-from PIL import Image
+from PIL import Image, ImageOps
 import numpy as np
 import glob
 import os
@@ -35,7 +35,7 @@ class ImageTextDataset(Dataset):
             list_images_file = glob.glob(os.path.join(sq, '*.jpg'))
             for filename in list_images_file:
                 label = filename.split('/')[-1].split("_")[0]
-                if (len(label) <= 25):
+                if (len(label) <= 23):
                     imagePathList.append(filename)
                     labelList.append(label)
 
@@ -79,6 +79,29 @@ class resizeNormalize(object):
         img.sub_(0.5).div_(0.5)
         return img
 
+class paddingNormalize(object):
+
+    def __init__(self, size, interpolation=Image.BILINEAR):
+        self.size = size
+        self.interpolation = interpolation
+        self.toTensor = transforms.ToTensor()
+
+    def __call__(self, img):
+        imgW, imgH = img.size
+        desireW, desireH = self.size
+
+        ratio = desireH / imgH
+        resizeW = int(ratio * imgW)
+        size_resize = (resizeW, desireH)
+        img = img.resize(size_resize, self.interpolation)
+
+        padding = (0, 0 , desireW - resizeW, 0)
+        img = ImageOps.expand(img, padding)
+        img = self.toTensor(img)
+        # print(img)
+        img.sub_(0.5).div_(0.5)
+        return img
+
 
 class randomSequentialSampler(sampler.Sampler):
 
@@ -119,18 +142,23 @@ class alignCollate(object):
 
         imgH = self.imgH
         imgW = self.imgW
+
         if self.keep_ratio:
             ratios = []
             for image in images:
                 w, h = image.size
                 ratios.append(w / float(h))
-            ratios.sort()
-            max_ratio = ratios[-1]
+            # ratios_sort = ratios.copy().sort()
+            # print("ratios", ratios)
+            # print("max_ratio", ratios_sort)
+            max_ratio = max(ratios)
             imgW = int(np.floor(max_ratio * imgH))
             imgW = max(imgH * self.min_ratio, imgW)  # assure imgH >= imgW
 
-        transform = resizeNormalize((imgW, imgH))
+        # print("ratios", ratios)
+        transform = paddingNormalize((imgW, imgH))
         images = [transform(image) for image in images]
+        # print("images", images[0].size(0))
         images = torch.cat([t.unsqueeze(0) for t in images], 0)
 
         return images, labels

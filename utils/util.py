@@ -183,6 +183,9 @@ def loadData(v, data):
     with torch.no_grad():
         v.resize_(data.size()).copy_(data)
 
+def loadDataImage(v, data):
+    with torch.no_grad():
+        v.resize_(data.size()).copy_(data).sub_(0.5).div_(0.5)
 
 def prettyPrint(v):
     print('Size {0}, Type: {1}'.format(str(v.size()), v.data.type()))

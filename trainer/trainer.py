@@ -2,7 +2,7 @@ import numpy as np
 import torch
 from torchvision.utils import make_grid
 from base import BaseTrainer
-from utils import inf_loop, MetricTracker, strLabelConverter, averager, loadData
+from utils import inf_loop, MetricTracker, strLabelConverter, averager, loadData, loadDataImage
 from torch.autograd import Variable
 
 import matplotlib.pyplot as plt
@@ -63,7 +63,7 @@ class Trainer(BaseTrainer):
         for batch_idx, (data, target) in enumerate(self.data_loader):
             batch_size = data.size(0)
 
-            # imshow(make_grid(data))
+            imshow(make_grid(data))
             # print("batch Size: ", batch_size)
             # data, target = data.to(self.device), target.to(self.device)
 
