@@ -25,6 +25,19 @@
             "keep_ratio" : true
         }
     },
+    "data_loader_test": {
+        "type": "TextImageDataLoader",
+        "args":{
+            "data_dir": "data",
+            "batch_size": 32,
+            "shuffle": true,
+            "validation_split": 0.0,
+            "num_workers": 4,
+            "imgH": 32,
+            "imgW": 404,
+            "keep_ratio" : true
+        }
+    },
     "optimizer": {
         "type": "Adam",
         "args":{
