@@ -187,6 +187,17 @@ def loadDataImage(v, data):
     with torch.no_grad():
         v.resize_(data.size()).copy_(data).sub_(0.5).div_(0.5)
 
+def countDifCharacter(predict, target):
+    lenPredit = len(predict)
+    lenTarget = len(target)
+    minLen = min(lenPredit, lenTarget)
+    difLen = abs(lenPredit - lenTarget)
+    dif = difLen
+    for i in range(minLen):
+        if (predict[i] != target[i]):
+            dif += 1
+    return difLen / lenTarget
+
 def prettyPrint(v):
     print('Size {0}, Type: {1}'.format(str(v.size()), v.data.type()))
     print('| Max: %f | Min: %f | Mean: %f' % (v.max().data[0], v.min().data[0],

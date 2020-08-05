@@ -11,7 +11,6 @@ import numpy as np
 import glob
 import os
 from defination import ROOT_PATH
-# ROOT_PATH = os.path.dirname(os.path.abspath(__file__))
 
 class ImageTextDataset(Dataset):
 
@@ -27,8 +26,6 @@ class ImageTextDataset(Dataset):
 
     def load_sequence(self):
         sequence_folder = glob.glob(ROOT_PATH + "/" + self.root)
-        # print(defination.ROOT_PATH)
-        # print(sequence_folder)
         imagePathList = []
         labelList = []
         for sq in sequence_folder:
@@ -39,18 +36,15 @@ class ImageTextDataset(Dataset):
                     imagePathList.append(filename)
                     labelList.append(label)
 
-        # print(imagePathList, labelList)
         return imagePathList, labelList
 
     def __len__(self):
         return self.nSamples
 
     def __getitem__(self, index):
-        #print(index, len(self.listImagePaths))
         assert index < len(self.listImagePaths) , 'index range error'
         imgPath = self.listImagePaths[index]
         label = self.listLabels[index]
-       # print(imgPath, label)
         try:
             img = Image.open(imgPath).convert('L')
         except IOError:
@@ -102,6 +96,17 @@ class paddingNormalize(object):
         img.sub_(0.5).div_(0.5)
         return img
 
+class reverseNormalize(object):
+
+    def __init__(self):
+        self.toTensor = transforms.ToTensor()
+
+    def __call__(self, img):
+        img = self.toTensor(img)
+        # print(img)
+        img.div_(-1).sub_(0.5).div_(0.5)
+        return img
+
 
 class randomSequentialSampler(sampler.Sampler):
 
@@ -148,17 +153,12 @@ class alignCollate(object):
             for image in images:
                 w, h = image.size
                 ratios.append(w / float(h))
-            # ratios_sort = ratios.copy().sort()
-            # print("ratios", ratios)
-            # print("max_ratio", ratios_sort)
             max_ratio = max(ratios)
             imgW = int(np.floor(max_ratio * imgH))
             imgW = max(imgH * self.min_ratio, imgW)  # assure imgH >= imgW
 
-        # print("ratios", ratios)
         transform = paddingNormalize((imgW, imgH))
         images = [transform(image) for image in images]
-        # print("images", images[0].size(0))
         images = torch.cat([t.unsqueeze(0) for t in images], 0)
 
         return images, labels
