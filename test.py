@@ -87,7 +87,7 @@ def main(config):
                                         quotechar='|', quoting=csv.QUOTE_MINIMAL)
 
                 for pred, tart in zip(sim_preds, target):
-                    tart = tart.lower
+                    tart = tart.lower()
                     if pred == tart:
                         n_correct += 1
                         sum_character_error += countDifCharacter(pred, tart)
@@ -101,7 +101,7 @@ def main(config):
             #     self.valid_metrics.update(met.__name__, met(sim_preds, target))
             # self.writer.add_image('input', make_grid(data.cpu(), nrow=8, normalize=True))
 
-        raw_preds = converter.decode(output.data, output_size.data, raw=True)[1000]
+        raw_preds = converter.decode(output.data, output_size.data, raw=True)
         for raw_pred, pred, gt in zip(raw_preds, sim_preds, target):
             print('%-20s => %-20s, gt: %-20s' % (raw_pred, pred, gt))
 
