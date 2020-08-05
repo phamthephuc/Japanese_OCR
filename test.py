@@ -7,6 +7,7 @@ import model.metric as module_metric
 import model.crnn as module_arch
 from parse_config import ConfigParser
 import csv
+from torch.autograd import Variable
 from utils import inf_loop, MetricTracker, strLabelConverter, averager, loadData, loadDataImage, countDifCharacter
 
 def main(config):
@@ -22,7 +23,7 @@ def main(config):
     # get function handles of loss and metrics
     criterion = config.init_obj("loss", module_loss)
     # metric_fns = [getattr(module_metric, met) for met in config['metrics']]
-
+    converter = strLabelConverter(config["alphabet"])
     logger.info('Loading checkpoint: {} ...'.format(config.resume))
     checkpoint = torch.load(config.resume)
     state_dict = checkpoint['state_dict']
@@ -62,16 +63,16 @@ def main(config):
             batch_size = data.size(0)
             # data, target = data.to(self.device), target.to(self.device)
 
-            text, length = self.converter.encode(target)
+            text, length = converter.encode(target)
 
             loadData(image, data)
-            output = self.model(image)
-            t, l = self.converter.encode(target)
+            output = model(image)
+            t, l = converter.encode(target)
             loadData(text, t)
             loadData(length, l)
 
             output_size = Variable(torch.IntTensor([output.size(0)] * batch_size))
-            loss = self.criterion(output, text, output_size, length) / batch_size
+            loss = criterion(output, text, output_size, length) / batch_size
             loss_avg.add(loss)
 
             # self.writer.set_step((epoch - 1) * len(self.valid_data_loader) + batch_idx, 'valid')
@@ -80,7 +81,7 @@ def main(config):
             _, output = output.max(2)
             # preds = preds.squeeze(2)
             output = output.transpose(1, 0).contiguous().view(-1)
-            sim_preds = self.converter.decode(output.data, output_size.data, raw=False)
+            sim_preds = converter.decode(output.data, output_size.data, raw=False)
             with open('result.csv', 'w', newline='') as csvfile:
                 spamwriter = csv.writer(csvfile, delimiter=' ',
                                         quotechar='|', quoting=csv.QUOTE_MINIMAL)
@@ -100,7 +101,7 @@ def main(config):
             #     self.valid_metrics.update(met.__name__, met(sim_preds, target))
             # self.writer.add_image('input', make_grid(data.cpu(), nrow=8, normalize=True))
 
-        raw_preds = self.converter.decode(output.data, output_size.data, raw=True)[1000]
+        raw_preds = converter.decode(output.data, output_size.data, raw=True)[1000]
         for raw_pred, pred, gt in zip(raw_preds, sim_preds, target):
             print('%-20s => %-20s, gt: %-20s' % (raw_pred, pred, gt))
 
