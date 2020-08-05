@@ -91,9 +91,9 @@ def main(config):
                     if pred == tart:
                         n_correct += 1
                         sum_character_error += countDifCharacter(pred, tart)
-                        spamwriter.writerow(tart, pred, "OK")
+                        spamwriter.writerow([tart, pred, "OK"])
                     else:
-                        spamwriter.writerow(tart, pred, "NG")
+                        spamwriter.writerow([tart, pred, "NG"])
 
 
 
