@@ -29,9 +29,9 @@ def main(config):
 
     opt = config["data_loader_test"]["args"]
     batch_size = opt["batch_size"]
-    image = torch.FloatTensor(batchSize, 3, opt["imgH"], opt["imgH"])
-    text = torch.IntTensor(batchSize * 5)
-    length = torch.IntTensor(batchSize)
+    image = torch.FloatTensor(batch_size, 3, opt["imgH"], opt["imgH"])
+    text = torch.IntTensor(batch_size * 5)
+    length = torch.IntTensor(batch_size)
 
     if torch.cuda.is_available():
         image = image.cuda()
