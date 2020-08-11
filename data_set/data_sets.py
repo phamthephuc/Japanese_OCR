@@ -11,13 +11,15 @@ import numpy as np
 import glob
 import os
 from defination import ROOT_PATH
+from augementers.augementers import invert, blur, noise
 
 class ImageTextDataset(Dataset):
 
-    def __init__(self, root=None, transform=None, target_transform=None):
+    def __init__(self, root=None, target_transform=None):
 
         self.root = root
-        self.transform = transform
+        self.transforms = [None, invert, blur, noise]
+        self.lenTransfroms = len(self.transforms)
         self.target_transform = target_transform
 
         self.listImagePaths, self.listLabels = self.load_sequence()
@@ -28,13 +30,15 @@ class ImageTextDataset(Dataset):
         sequence_folder = glob.glob(ROOT_PATH + "/" + self.root)
         imagePathList = []
         labelList = []
+
         for sq in sequence_folder:
             list_images_file = glob.glob(os.path.join(sq, '*.jpg'))
             for filename in list_images_file:
                 label = filename.split('/')[-1].split("_")[0]
                 if (len(label) <= 23):
-                    imagePathList.append(filename)
-                    labelList.append(label)
+                    for tran in range(self.lenTransfroms):
+                        imagePathList.append(filename)
+                        labelList.append(label)
 
         return imagePathList, labelList
 
@@ -51,8 +55,9 @@ class ImageTextDataset(Dataset):
             print('Corrupted image for %d' % index)
             return self[index + 1]
 
-        if self.transform is not None:
-            img = self.transform(img)
+        transform = self.transforms[index % self.lenTransfroms]
+        if transform is not None:
+            img = transform(img)
 
         if self.target_transform is not None:
             label = self.target_transform(label)

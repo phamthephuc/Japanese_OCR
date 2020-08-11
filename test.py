@@ -82,9 +82,8 @@ def main(config):
             # preds = preds.squeeze(2)
             output = output.transpose(1, 0).contiguous().view(-1)
             sim_preds = converter.decode(output.data, output_size.data, raw=False)
-            with open('result.csv', 'w', newline='') as csvfile:
-                spamwriter = csv.writer(csvfile, delimiter=' ',
-                                        quotechar='|', quoting=csv.QUOTE_MINIMAL)
+            with open('result.csv', 'a', newline='') as csvfile:
+                spamwriter = csv.writer(csvfile)
 
                 for pred, tart in zip(sim_preds, target):
                     tart = tart.lower()
