@@ -11,14 +11,14 @@ import numpy as np
 import glob
 import os
 from defination import ROOT_PATH
-from augementers.augementers import invert, blur, noise
+from augementers.augementers import invert, blur
 
 class ImageTextDataset(Dataset):
 
     def __init__(self, root=None, target_transform=None):
 
         self.root = root
-        self.transforms = [None, invert, blur, noise]
+        self.transforms = [None, invert, blur]
         self.lenTransfroms = len(self.transforms)
         self.target_transform = target_transform
 
