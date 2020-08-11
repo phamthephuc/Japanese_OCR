@@ -8,7 +8,7 @@ import numpy as np
 def invert(image):
     return ImageOps.invert(image)
 
-def noisy(image):
+def noise(image):
     row,col,ch= image.shape
     mean = 0
     var = 0.1
