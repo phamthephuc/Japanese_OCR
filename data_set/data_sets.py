@@ -11,14 +11,14 @@ import numpy as np
 import glob
 import os
 from defination import ROOT_PATH
-from augementers.augementers import invert, blur
+from augementers.augementers import toGrey, invert, blur, distort, stretch, perspective
 
 class ImageTextDataset(Dataset):
 
     def __init__(self, root=None, target_transform=None):
 
         self.root = root
-        self.transforms = [None, invert, blur]
+        self.transforms = [toGrey, invert, distort, stretch]
         self.lenTransfroms = len(self.transforms)
         self.target_transform = target_transform
 
@@ -50,7 +50,7 @@ class ImageTextDataset(Dataset):
         imgPath = self.listImagePaths[index]
         label = self.listLabels[index]
         try:
-            img = Image.open(imgPath).convert('L')
+            img = Image.open(imgPath)
         except IOError:
             print('Corrupted image for %d' % index)
             return self[index + 1]
