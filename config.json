@@ -1,6 +1,6 @@
 {
     "name": "CRNN_Net",
-    "n_gpu": 0,
+    "n_gpu": 1,
 
     "arch": {
         "type": "CRNN",
@@ -16,7 +16,7 @@
         "type": "TextImageDataLoader",
         "args":{
             "data_dir": "data",
-            "batch_size": 1,
+            "batch_size": 64,
             "shuffle": true,
             "validation_split": 0.1,
             "num_workers": 4,
@@ -29,7 +29,7 @@
         "type": "TextImageDataLoader",
         "args":{
             "data_dir": "data",
-            "batch_size": 32,
+            "batch_size": 64,
             "shuffle": true,
             "validation_split": 0.0,
             "num_workers": 4,
@@ -64,9 +64,9 @@
     },
     "trainer": {
         "epochs": 200,
-        "valid_period": 20,
+        "valid_period": 10,
         "save_dir": "saved/",
-        "save_period": 20,
+        "save_period": 5,
         "verbosity": 2,
         "test_disp": 10,
         "monitor": "off",
