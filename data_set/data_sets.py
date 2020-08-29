@@ -12,7 +12,7 @@ import glob
 import os
 from defination import ROOT_PATH
 from augementers.augementers import toGrey, invert, blur, distort, stretch, perspective
-from pandas import DataFrame
+import pandas as pd
 
 
 class ImageTextDataset(Dataset):
@@ -20,7 +20,7 @@ class ImageTextDataset(Dataset):
     def __init__(self, root=None, target_transform=None):
 
         self.root = root
-        self.transforms = [toGrey, invert, distort, stretch]
+        self.transforms = [toGrey, invert, distort]
         self.lenTransfroms = len(self.transforms)
         self.target_transform = target_transform
 
@@ -81,9 +81,11 @@ class ImageTextDatasetForTest(Dataset):
 
     def readLabel(self):
         sequence_folder = glob.glob(ROOT_PATH + "/" + self.root)
-        tsvPath = sequence_folder + "/total_recognize_label.tsv"
-        df = DataFrame.from_csv("tsv.tsv", sep="\t")
-        return df
+        for sq in sequence_folder:
+            tsvPath = sq + "/total_recognition_label.tsv"
+            df = pd.read_csv(tsvPath, sep="\t", index_col=0)
+            # print(df)
+            return df
 
 
     def load_sequence(self):
@@ -94,8 +96,12 @@ class ImageTextDatasetForTest(Dataset):
         for sq in sequence_folder:
             list_images_file = glob.glob(os.path.join(sq, '*.jpg'))
             for filename in list_images_file:
-                index = filename.split('/')[-1];
-                label = self.df_label[index, "label"]
+                index = filename.split('/')[-1].split(".")[0];
+                index = int(index)
+                label = self.df_label.iloc[index]["label"]
+                if ( label != label ):
+                  label = "NULL"
+                # print(index, label, label is None)
                 if (len(label) <= 23):
                     imagePathList.append(filename)
                     labelList.append(label)

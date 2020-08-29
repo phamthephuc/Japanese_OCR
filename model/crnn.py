@@ -27,10 +27,10 @@ class CRNN(BaseModel):
         super(CRNN, self).__init__()
         assert imgH % 16 == 0, 'imgH has to be a multiple of 16'
 
-        ks = [3, 3, 3, 3, 3, 3, 2]
-        ps = [1, 1, 1, 1, 1, 1, 0]
-        ss = [1, 1, 1, 1, 1, 1, 1]
-        nm = [64, 128, 256, 256, 512, 512, 512]
+        ks = [3, 3, 3, 3, 3, 3, 3, 3]
+        ps = [1, 1, 1, 1, 1, 1, 1, 0]
+        ss = [1, 1, 1, 1, 1, 1, 1, 1]
+        nm = [32, 64, 128, 256, 256, 512, 512, 512]
 
         cnn = nn.Sequential()
 
@@ -48,18 +48,20 @@ class CRNN(BaseModel):
                 cnn.add_module('relu{0}'.format(i), nn.ReLU(True))
 
         convRelu(0)
-        cnn.add_module('pooling{0}'.format(0), nn.MaxPool2d(2, 2))  # 64x16x64
+        cnn.add_module('pooling{0}'.format(0), nn.MaxPool2d(2, 2))  # 32x24x64
         convRelu(1)
-        cnn.add_module('pooling{0}'.format(1), nn.MaxPool2d(2, 2))  # 128x8x32
-        convRelu(2, True)
-        convRelu(3)
-        cnn.add_module('pooling{0}'.format(2),
-                       nn.MaxPool2d((2, 2), (2, 1), (0, 1)))  # 256x4x16
-        convRelu(4, True)
-        convRelu(5)
+        cnn.add_module('pooling{0}'.format(1), nn.MaxPool2d(2, 2))  # 64x12x32
+        convRelu(2)
+        cnn.add_module('pooling{0}'.format(2), nn.MaxPool2d(2, 2))  # 128x6x16
+        convRelu(3, True)
+        convRelu(4)
         cnn.add_module('pooling{0}'.format(3),
-                       nn.MaxPool2d((2, 2), (2, 1), (0, 1)))  # 512x2x16
-        convRelu(6, True)  # 512x1x16
+                       nn.MaxPool2d((2, 2), (2, 1), (0, 1)))  # 256x3x 8
+        convRelu(5, True)
+        convRelu(6)
+        # cnn.add_module('pooling{0}'.format(4),
+        #                nn.MaxPool2d((2, 2), (2, 1), (0, 1)))  # 512x 2 x16
+        convRelu(7, True)  # 512x1x16
 
         self.cnn = cnn
         self.rnn = nn.Sequential(
@@ -70,6 +72,7 @@ class CRNN(BaseModel):
         # conv features
         conv = self.cnn(input)
         b, c, h, w = conv.size()
+        print(b, c, h, w)
         assert h == 1, "the height of conv must be 1"
         conv = conv.squeeze(2)
         conv = conv.permute(2, 0, 1)  # [w, b, c]
