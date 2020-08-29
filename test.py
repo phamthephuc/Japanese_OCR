@@ -53,6 +53,7 @@ def main(config):
 
     # total_loss = 0.0
     # total_metrics = torch.zeros(len(metric_fns))
+    sizeDatas = 0
     n_correct = 0
     sum_character_error = 0
     max_iter = len(data_loader)
@@ -61,6 +62,7 @@ def main(config):
         for i, (data, target) in enumerate(tqdm(data_loader)):
 
             batch_size = data.size(0)
+            sizeDatas += batch_size
             # data, target = data.to(self.device), target.to(self.device)
 
             text, length = converter.encode(target)
@@ -89,10 +91,10 @@ def main(config):
                     tart = tart.lower()
                     if pred == tart:
                         n_correct += 1
-                        sum_character_error += countDifCharacter(pred, tart)
                         spamwriter.writerow([tart, pred, "OK"])
                     else:
                         spamwriter.writerow([tart, pred, "NG"])
+                    sum_character_error += countDifCharacter(pred, tart)
 
 
 
@@ -104,8 +106,8 @@ def main(config):
         for raw_pred, pred, gt in zip(raw_preds, sim_preds, target):
             print('%-20s => %-20s, gt: %-20s' % (raw_pred, pred, gt))
 
-        accuracy = n_correct / float(max_iter * batch_size)
-        character_error_rate = sum_character_error / float(max_iter * batch_size)
+        accuracy = n_correct / float(sizeDatas)
+        character_error_rate = sum_character_error / float(sizeDatas)
         print('Test loss: %f, accuray: %f, character error rate: %f' % (loss_avg.val(), accuracy, character_error_rate))
 
 

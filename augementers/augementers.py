@@ -17,13 +17,13 @@ def invert(image):
     image = image.convert('L')
     image = ImageOps.invert(image)
     array = np.asarray(image)
-    print(array)
+    # print(array)
     threshold = 100
-    print(threshold)
+    # print(threshold)
     img_h, img_w = array.shape[:2]
-    print(img_h, img_w)
+    # print(img_h, img_w)
     newArray = np.asarray([[array[i][j] if array[i][j] > threshold else threshold for j in range(img_w)] for i in range(img_h)], dtype=np.uint8)
-    print(newArray)
+    # print(newArray)
     return Image.fromarray(newArray)
     #
     # image = image.convert('L')
@@ -37,11 +37,11 @@ def blur(image):
     return image.filter(ImageFilter.GaussianBlur(0.5))
 
 
-def distort(img, segment=10):
+def distort(img, cut=20):
     src = cv2.cvtColor(np.asarray(img), cv2.COLOR_RGB2BGR)
     img_h, img_w = src.shape[:2]
 
-    cut = img_w // segment
+    segment = img_w // cut
     thresh = cut // 3
     # thresh = img_h // segment // 3
     # thresh = img_h // 5

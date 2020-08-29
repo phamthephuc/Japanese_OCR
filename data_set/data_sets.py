@@ -12,6 +12,8 @@ import glob
 import os
 from defination import ROOT_PATH
 from augementers.augementers import toGrey, invert, blur, distort, stretch, perspective
+from pandas import DataFrame
+
 
 class ImageTextDataset(Dataset):
 
@@ -64,6 +66,63 @@ class ImageTextDataset(Dataset):
 
         return (img, label)
 
+
+class ImageTextDatasetForTest(Dataset):
+
+    def __init__(self, root=None, transform=None, target_transform=None):
+
+        self.root = root
+        self.transform = transform
+        self.target_transform = target_transform
+        self.df_label = self.readLabel()
+        self.listImagePaths, self.listLabels = self.load_sequence()
+        self.nSamples = len(self.listLabels)
+        print(self.nSamples)
+
+    def readLabel(self):
+        sequence_folder = glob.glob(ROOT_PATH + "/" + self.root)
+        tsvPath = sequence_folder + "/total_recognize_label.tsv"
+        df = DataFrame.from_csv("tsv.tsv", sep="\t")
+        return df
+
+
+    def load_sequence(self):
+        sequence_folder = glob.glob(ROOT_PATH + "/" + self.root)
+        imagePathList = []
+        labelList = []
+
+        for sq in sequence_folder:
+            list_images_file = glob.glob(os.path.join(sq, '*.jpg'))
+            for filename in list_images_file:
+                index = filename.split('/')[-1];
+                label = self.df_label[index, "label"]
+                if (len(label) <= 23):
+                    imagePathList.append(filename)
+                    labelList.append(label)
+                if (len(labelList) >= 1000):
+                    break
+        return imagePathList, labelList
+
+    def __len__(self):
+        return self.nSamples
+
+    def __getitem__(self, index):
+        assert index < len(self.listImagePaths) , 'index range error'
+        imgPath = self.listImagePaths[index]
+        label = self.listLabels[index]
+        try:
+            img = Image.open(imgPath).convert('L')
+        except IOError:
+            print('Corrupted image for %d' % index)
+            return self[index + 1]
+
+        if self.transform is not None:
+            img = self.transform(img)
+
+        if self.target_transform is not None:
+            label = self.target_transform(label)
+
+        return (img, label)
 
 class resizeNormalize(object):
 

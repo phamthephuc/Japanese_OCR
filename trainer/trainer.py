@@ -2,7 +2,7 @@ import numpy as np
 import torch
 from torchvision.utils import make_grid
 from base import BaseTrainer
-from utils import inf_loop, MetricTracker, strLabelConverter, averager, loadData, loadDataImage
+from utils import inf_loop, MetricTracker, strLabelConverter, averager, loadData, loadDataImage, countDifCharacter
 from torch.autograd import Variable
 
 import matplotlib.pyplot as plt
@@ -50,6 +50,9 @@ class Trainer(BaseTrainer):
         self.image = Variable(self.image)
         self.text = Variable(self.text)
         self.length = Variable(self.length)
+        self.accuracies = []
+        self.character_error_rates = []
+        self.start_visualize_epoch = 0
 
     def _train_epoch(self, epoch):
         """
@@ -64,7 +67,7 @@ class Trainer(BaseTrainer):
 
             batch_size = data.size(0)
 
-            # imshow(make_grid(data))
+            imshow(make_grid(data))
             # print("batch Size: ", batch_size)
             # data, target = data.to(self.device), target.to(self.device)
 
@@ -117,15 +120,18 @@ class Trainer(BaseTrainer):
         :param epoch: Integer, current training epoch.
         :return: A log that contains information about validation
         """
+        if (len(self.character_error_rates) == 0):
+            self.start_visualize_epoch = epoch
         self.model.eval()
         self.valid_metrics.reset()
+        sizeDatas = 0
         loss_avg = averager()
         n_correct = 0
-        max_iter = len(self.valid_data_loader)
+        sum_character_error = 0
         with torch.no_grad():
             for batch_idx, (data, target) in enumerate(self.valid_data_loader):
                 batch_size = data.size(0)
-                # data, target = data.to(self.device), target.to(self.device)
+                sizeDatas += batch_size
 
                 text, length = self.converter.encode(target)
 
@@ -147,9 +153,10 @@ class Trainer(BaseTrainer):
                 output = output.transpose(1, 0).contiguous().view(-1)
                 sim_preds = self.converter.decode(output.data, output_size.data, raw=False)
                 for pred, tart in zip(sim_preds, target):
-                    if pred == tart.lower():
+                    tart = tart.lower()
+                    if pred == tart:
                         n_correct += 1
-
+                    sum_character_error += countDifCharacter(pred, tart)
                 # for met in self.metric_ftns:
                 #     self.valid_metrics.update(met.__name__, met(sim_preds, target))
                 # self.writer.add_image('input', make_grid(data.cpu(), nrow=8, normalize=True))
@@ -158,9 +165,13 @@ class Trainer(BaseTrainer):
         for raw_pred, pred, gt in zip(raw_preds, sim_preds, target):
             print('%-20s => %-20s, gt: %-20s' % (raw_pred, pred, gt))
 
-        accuracy = n_correct / float(max_iter * batch_size)
-        print('Test loss: %f, accuray: %f' % (loss_avg.val(), accuracy))
+        accuracy = n_correct / float(sizeDatas)
+        character_error_rate = sum_character_error / float(sizeDatas)
+        print('Test loss: %f, accuray: %f, chacracter_error_rate: %f' % (loss_avg.val(), accuracy, character_error_rate))
+        self.accuracies.append(accuracy)
+        self.character_error_rates.append(character_error_rate)
 
+        self.visualizeValid(epoch)
         # self.valid_metrics.update('loss', loss_avg.val())
         # for met in self.metric_ftns:
         #     self.valid_metrics.update(met.__name__, met(sim_preds, target))
@@ -169,6 +180,21 @@ class Trainer(BaseTrainer):
         # for name, p in self.model.named_parameters():
         #     self.writer.add_histogram(name, p, bins='auto')
         # return self.valid_metrics.result()
+
+    def visualizeValid(self, epoch):
+        plt.title("Validation Accuracy vs. Charactor Error Rate of Valid Epochs")
+        plt.xlabel("Valid Epochs")
+        plt.ylabel("Data Validation")
+        maxEpoch = self.start_visualize_epoch + len(self.accuracies) * self.valid_period
+        plt.plot(range(self.start_visualize_epoch, maxEpoch  + 1, self.valid_period), self.accuracies, label="Accuracy")
+        plt.plot(range(self.start_visualize_epoch, maxEpoch  + 1, self.valid_period), self.character_error_rates, label="Charactor Error Rate")
+        plt.ylim((0, 1.))
+        plt.xticks(np.arange(1, maxEpoch + 1, 1.0))
+        plt.legend()
+        plt.show()
+        plt.savefig('valid_visualize_epoch_' + str(epoch) + '.png')
+        plt.cla()
+        plt.clf()
 
     def _progress(self, batch_idx):
         base = '[{}/{} ({:.0f}%)]'
