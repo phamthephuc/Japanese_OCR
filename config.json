@@ -5,7 +5,7 @@
     "arch": {
         "type": "CRNN",
         "args": {
-            "imgH": 32,
+            "imgH": 48,
             "nc": 1,
             "nclass": 3969,
             "nh": 256
@@ -18,10 +18,10 @@
             "data_dir": "data",
             "batch_size": 64,
             "shuffle": true,
-            "validation_split": 0.1,
+            "validation_split": 0.0,
             "num_workers": 4,
-            "imgH": 32,
-            "imgW": 404,
+            "imgH": 48,
+            "imgW": 606,
             "keep_ratio" : false
         }
     },
@@ -33,8 +33,8 @@
             "shuffle": true,
             "validation_split": 0.0,
             "num_workers": 4,
-            "imgH": 32,
-            "imgW": 404,
+            "imgH": 48,
+            "imgW": 606,
             "keep_ratio" : false
         }
     },

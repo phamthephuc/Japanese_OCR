@@ -4,6 +4,7 @@ from torchvision.utils import make_grid
 from base import BaseTrainer
 from utils import inf_loop, MetricTracker, strLabelConverter, averager, loadData, loadDataImage, countDifCharacter
 from torch.autograd import Variable
+import json
 
 import matplotlib.pyplot as plt
 def imshow(img):
@@ -50,9 +51,17 @@ class Trainer(BaseTrainer):
         self.image = Variable(self.image)
         self.text = Variable(self.text)
         self.length = Variable(self.length)
-        self.accuracies = []
-        self.character_error_rates = []
-        self.start_visualize_epoch = 0
+        self.accuracies, self.character_error_rates, self.valid_epoches = self.getVaidArrayInfo()
+
+    def getVaidArrayInfo(self):
+        with open('valid.json') as json_file:
+            data = json.load(json_file)
+            return data[0], data[1], data[2]
+
+    def saveValidArray(self):
+        data = [self.accuracies, self.character_error_rates, self.valid_epoches]
+        with open('valid.json', 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=4)
 
     def _train_epoch(self, epoch):
         """
@@ -120,8 +129,6 @@ class Trainer(BaseTrainer):
         :param epoch: Integer, current training epoch.
         :return: A log that contains information about validation
         """
-        if (len(self.character_error_rates) == 0):
-            self.start_visualize_epoch = epoch
         self.model.eval()
         self.valid_metrics.reset()
         sizeDatas = 0
@@ -168,6 +175,7 @@ class Trainer(BaseTrainer):
         accuracy = n_correct / float(sizeDatas)
         character_error_rate = sum_character_error / float(sizeDatas)
         print('Test loss: %f, accuray: %f, chacracter_error_rate: %f' % (loss_avg.val(), accuracy, character_error_rate))
+        self.valid_epoches.append(epoch)
         self.accuracies.append(accuracy)
         self.character_error_rates.append(character_error_rate)
 
@@ -185,9 +193,9 @@ class Trainer(BaseTrainer):
         plt.title("Validation Accuracy vs. Charactor Error Rate of Valid Epochs")
         plt.xlabel("Valid Epochs")
         plt.ylabel("Data Validation")
-        maxEpoch = self.start_visualize_epoch + len(self.accuracies) * self.valid_period
-        plt.plot(range(self.start_visualize_epoch, maxEpoch  + 1, self.valid_period), self.accuracies, label="Accuracy")
-        plt.plot(range(self.start_visualize_epoch, maxEpoch  + 1, self.valid_period), self.character_error_rates, label="Charactor Error Rate")
+        maxEpoch = self.valid_epoches[-1]
+        plt.plot(self.valid_epoches, self.accuracies, label="Accuracy")
+        plt.plot(self.valid_epoches, self.character_error_rates, label="Charactor Error Rate")
         plt.ylim((0, 1.))
         plt.xticks(np.arange(1, maxEpoch + 1, 1.0))
         plt.legend()
@@ -195,6 +203,7 @@ class Trainer(BaseTrainer):
         plt.savefig('valid_visualize_epoch_' + str(epoch) + '.png')
         plt.cla()
         plt.clf()
+        self.saveValidArray()
 
     def _progress(self, batch_idx):
         base = '[{}/{} ({:.0f}%)]'
