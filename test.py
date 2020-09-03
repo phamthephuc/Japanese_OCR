@@ -8,7 +8,7 @@ import model.crnn as module_arch
 from parse_config import ConfigParser
 import csv
 from torch.autograd import Variable
-from utils import inf_loop, MetricTracker, strLabelConverter, averager, loadData, loadDataImage, countDifCharacter
+from utils import inf_loop, MetricTracker, strLabelConverter, averager, loadData, loadDataImage, countDifCharacter, full2half
 
 def main(config):
     logger = config.get_logger('test')
@@ -23,7 +23,10 @@ def main(config):
     # get function handles of loss and metrics
     criterion = config.init_obj("loss", module_loss)
     # metric_fns = [getattr(module_metric, met) for met in config['metrics']]
-    converter = strLabelConverter(config["alphabet"])
+    file_alphabet = open("alphabet.txt")
+    alphabet = file_alphabet.read()
+    alphabet = full2half(alphabet)
+    converter = strLabelConverter(alphabet)
     logger.info('Loading checkpoint: {} ...'.format(config.resume))
     checkpoint = torch.load(config.resume)
     state_dict = checkpoint['state_dict']

@@ -212,4 +212,18 @@ def assureRatio(img):
         img = main(img)
     return img
 
+def full2half(s):
+    n = []
+    if isinstance(s, str):
+        s = s.encode().decode(encoding = 'UTF-8',errors = 'strict')
+    for char in s:
+        num = ord(char)
+        if num == 0x3000:
+            num = 32
+        elif 0xFF01 <= num <= 0xFF5E:
+            num -= 0xfee0
+        num = chr(num)
+        n.append(num)
+    return ''.join(n)
+
 

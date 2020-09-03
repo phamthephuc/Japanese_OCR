@@ -2,7 +2,7 @@ import numpy as np
 import torch
 from torchvision.utils import make_grid
 from base import BaseTrainer
-from utils import inf_loop, MetricTracker, strLabelConverter, averager, loadData, loadDataImage, countDifCharacter
+from utils import inf_loop, MetricTracker, strLabelConverter, averager, loadData, loadDataImage, countDifCharacter, full2half
 from torch.autograd import Variable
 import json
 
@@ -21,7 +21,10 @@ class Trainer(BaseTrainer):
                  valid_data_loader=None, lr_scheduler=None, len_epoch=None):
         super().__init__(model, criterion, metric_ftns, optimizer, config)
         self.config = config
-        self.alphabet = config["alphabet"];
+        file_alphabet = open("alphabet.txt")
+        self.alphabet = file_alphabet.read()
+        self.alphabet = full2half(self.alphabet)
+        # self.alphabet = config["alphabet"];
         self.data_loader = data_loader
         self.converter = strLabelConverter(self.alphabet)
         if len_epoch is None:
