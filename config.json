@@ -7,7 +7,7 @@
         "args": {
             "imgH": 48,
             "nc": 1,
-            "nclass": 3969,
+            "nclass": 4189,
             "nh": 256
         }
     },
