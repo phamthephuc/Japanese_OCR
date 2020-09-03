@@ -75,8 +75,13 @@ class BaseTrainer:
         """
         not_improved_count = 0
         for epoch in range(self.start_epoch, self.epochs + 1):
-            for p in self.model.parameters():
-                p.requires_grad = True
+            # for p in self.model.parameters():
+            #     p.requires_grad = True
+            for parameter in self.model.parameters():
+                parameter.requires_grad = False
+            for parameter in self.model[-1].parameters():
+                parameter.requires_grad = True
+
             self.model.train()
 
             result = self._train_epoch(epoch)
@@ -113,6 +118,9 @@ class BaseTrainer:
                     self.logger.info("Validation performance didn\'t improve for {} epochs. "
                                      "Training stops.".format(self.early_stop))
                     break
+
+            for parameter in self.model.parameters():
+                parameter.requires_grad = False
 
             if epoch % self.save_period == 0:
                 self._save_checkpoint(epoch, save_best=best)
@@ -177,9 +185,9 @@ class BaseTrainer:
         self.mnt_best = checkpoint['monitor_best']
 
         # load architecture params from checkpoint.
-        if checkpoint['config']['arch'] != self.config['arch']:
-            self.logger.warning("Warning: Architecture configuration given in config file is different from that of "
-                                "checkpoint. This may yield an exception while state_dict is being loaded.")
+        # if checkpoint['config']['arch'] != self.config['arch']:
+        #     self.logger.warning("Warning: Architecture configuration given in config file is different from that of "
+        #                         "checkpoint. This may yield an exception while state_dict is being loaded.")
         self.model.load_state_dict(checkpoint['state_dict'])
 
         # load optimizer state from checkpoint only when optimizer type is not changed.
