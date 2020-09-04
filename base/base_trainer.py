@@ -75,12 +75,12 @@ class BaseTrainer:
         """
         not_improved_count = 0
         for epoch in range(self.start_epoch, self.epochs + 1):
-            # for p in self.model.parameters():
-            #     p.requires_grad = True
-            for parameter in self.model.parameters():
-                parameter.requires_grad = False
-            for parameter in self.model[-1].parameters():
-                parameter.requires_grad = True
+            for p in self.model.parameters():
+                p.requires_grad = True
+            # for parameter in self.model.parameters():
+            #     parameter.requires_grad = False
+            # for parameter in self.model[-1].parameters():
+            #     parameter.requires_grad = True
 
             self.model.train()
 

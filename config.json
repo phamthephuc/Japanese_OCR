@@ -7,7 +7,7 @@
         "args": {
             "imgH": 48,
             "nc": 1,
-            "nclass": 4189,
+            "nclass": 4190,
             "nh": 256
         }
     },
@@ -15,13 +15,13 @@
     "data_loader": {
         "type": "TextImageDataLoader",
         "args":{
-            "data_dir": "data",
+            "data_dir": "out",
             "batch_size": 64,
             "shuffle": true,
             "validation_split": 0.0,
             "num_workers": 4,
             "imgH": 48,
-            "imgW": 606,
+            "imgW": 850,
             "keep_ratio" : false
         }
     },
@@ -34,7 +34,7 @@
             "validation_split": 0.0,
             "num_workers": 4,
             "imgH": 48,
-            "imgW": 606,
+            "imgW": 850,
             "keep_ratio" : false
         }
     },

@@ -24,9 +24,18 @@ class ImageTextDataset(Dataset):
         self.lenTransfroms = len(self.transforms)
         self.target_transform = target_transform
 
+        self.df_label = self.readLabel()
         self.listImagePaths, self.listLabels = self.load_sequence()
         self.nSamples = len(self.listLabels)
         print(self.nSamples)
+
+    def readLabel(self):
+        sequence_folder = glob.glob(ROOT_PATH + "/" + self.root)
+        for sq in sequence_folder:
+            tsvPath = sq + "/total_recognition_label.tsv"
+            df = pd.read_csv(tsvPath, sep="\t", index_col=0)
+            # print(df)
+            return df
 
     def load_sequence(self):
         sequence_folder = glob.glob(ROOT_PATH + "/" + self.root)
@@ -36,12 +45,17 @@ class ImageTextDataset(Dataset):
         for sq in sequence_folder:
             list_images_file = glob.glob(os.path.join(sq, '*.jpg'))
             for filename in list_images_file:
-                label = filename.split('/')[-1].split("_")[0]
+                index = filename.split('/')[-1].split(".")[0];
+                index = int(index)
+                label = self.df_label.iloc[index]["label"]
+                if (label != label):
+                    label = "NULL"
+                # print(index, label, label is None)
                 if (len(label) <= 23):
-                    for tran in range(self.lenTransfroms):
-                        imagePathList.append(filename)
-                        labelList.append(label)
-
+                    imagePathList.append(filename)
+                    labelList.append(label)
+                if (len(labelList) >= 1000):
+                    break
         return imagePathList, labelList
 
     def __len__(self):
