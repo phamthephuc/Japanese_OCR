@@ -149,7 +149,7 @@ class AttnLabelConverter(object):
         self.character = list_token + list_character
 
         self.dict = {}
-        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.device = torch.device('cuda:1' if torch.cuda.is_available() else 'cpu')
         for i, char in enumerate(self.character):
             # print(i, char)
             self.dict[char] = i
