@@ -45,7 +45,7 @@ class Trainer(BaseTrainer):
         opt = config["data_loader"]["args"]
         batchSize = opt["batch_size"]
         self.image = torch.FloatTensor(batchSize, 3, opt["imgH"], opt["imgH"])
-        self.text = torch.IntTensor(batchSize * 5)
+        self.text = torch.LongTensor(batchSize * 5)
         self.length = torch.IntTensor(batchSize)
 
         if self.is_use_cuda:
