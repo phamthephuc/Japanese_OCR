@@ -26,7 +26,7 @@ class CRNN(BaseModel):
         super(CRNN, self).__init__()
         assert imgH % 16 == 0, 'imgH has to be a multiple of 16'
 
-        self.cnn = ResNet_FeatureExtractor(imgH, 512)
+        self.cnn = ResNet_FeatureExtractor(nc, 512)
         self.rnn = nn.Sequential(
             BidirectionalLSTM(512, nh, nh),
             BidirectionalLSTM(nh, nh, nclass))
