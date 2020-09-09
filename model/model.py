@@ -61,10 +61,10 @@ class Model(BaseModel):
         """ Sequence modeling"""
         self.SequenceModeling = nn.Sequential(
             BidirectionalLSTM(self.FeatureExtraction_output, hidden_size, hidden_size),
-            BidirectionalLSTM(hidden_size, hidden_size, hidden_size))
-        self.SequenceModeling_output = hidden_size
-
-        self.Prediction = Attention(self.SequenceModeling_output, hidden_size, num_class)
+            BidirectionalLSTM(hidden_size, hidden_size, num_class))
+        # self.SequenceModeling_output = hidden_size
+        #
+        # self.Prediction = Attention(self.SequenceModeling_output, hidden_size, num_class)
 
     def forward(self, input, text, is_train=True):
 
@@ -76,6 +76,7 @@ class Model(BaseModel):
 
         contextual_feature = self.SequenceModeling(visual_feature)
 
-        prediction = self.Prediction(contextual_feature.contiguous(), text, is_train, batch_max_length=self.batch_max_length)
+        return contextual_feature
+        # prediction = self.Prediction(contextual_feature.contiguous(), text, is_train, batch_max_length=self.batch_max_length)
 
-        return prediction
+        # return prediction
