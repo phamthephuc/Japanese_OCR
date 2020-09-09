@@ -67,7 +67,7 @@ class strLabelConverter(object):
         ignore_case (bool, default=True): whether or not to ignore all of the case.
     """
 
-    def __init__(self, alphabet, ignore_case=True):
+    def __init__(self, alphabet, ignore_case=False):
         self._ignore_case = ignore_case
         if self._ignore_case:
             alphabet = alphabet.lower()

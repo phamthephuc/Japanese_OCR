@@ -54,8 +54,8 @@ class ImageTextDataset(Dataset):
                 if (len(label) <= 23):
                     imagePathList.append(filename)
                     labelList.append(label)
-                if (len(labelList) >= 1000):
-                    break
+                # if (len(labelList) >= 1000):
+                #     break
         return imagePathList, labelList
 
     def __len__(self):

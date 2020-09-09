@@ -26,7 +26,7 @@ class Trainer(BaseTrainer):
         self.alphabet = full2half(self.alphabet)
         # self.alphabet = config["alphabet"];
         self.data_loader = data_loader
-        self.converter = AttnLabelConverter(self.alphabet)
+        self.converter = strLabelConverter(self.alphabet)
         if len_epoch is None:
             # epoch-based training
             self.len_epoch = len(self.data_loader)
@@ -92,7 +92,7 @@ class Trainer(BaseTrainer):
             loadData(self.text, t)
             loadData(self.length, l)
 
-            output = self.model(self.image, self.text[:, :-1])
+            output = self.model(self.image, self.text)
             # print(target)
             # print(l)
             # print(t)
@@ -168,7 +168,6 @@ class Trainer(BaseTrainer):
                 output = output.transpose(1, 0).contiguous().view(-1)
                 sim_preds = self.converter.decode(output.data, output_size.data, raw=False)
                 for pred, tart in zip(sim_preds, target):
-                    tart = tart.lower()
                     if pred == tart:
                         n_correct += 1
                     sum_character_error += countDifCharacter(pred, tart)

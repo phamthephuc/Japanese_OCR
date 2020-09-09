@@ -7,3 +7,7 @@ def nll_loss(output, target):
 class CTCLoss(nn.CTCLoss):
     def __init__(self):
         super().__init__()
+
+class CrossEntropyLoss(nn.CrossEntropyLoss):
+    def __init__(self):
+        super().__init__()
