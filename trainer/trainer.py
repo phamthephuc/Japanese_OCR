@@ -49,8 +49,8 @@ class Trainer(BaseTrainer):
         self.length = torch.IntTensor(batchSize)
 
         if self.is_use_cuda:
-            self.image = self.image.cuda()
-            self.criterion = self.criterion.cuda()
+            self.image = self.image.to(self.device)
+            self.criterion = self.criterion.to(self.device)
         self.image = Variable(self.image)
         self.text = Variable(self.text)
         self.length = Variable(self.length)
