@@ -50,6 +50,8 @@ class Trainer(BaseTrainer):
 
         if self.is_use_cuda:
             self.image = self.image.to(self.device)
+            self.text = self.text.to(self.device)
+            self.length = self.length.to(self.device)
             self.criterion = self.criterion.to(self.device)
         self.image = Variable(self.image)
         self.text = Variable(self.text)
