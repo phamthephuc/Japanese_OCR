@@ -20,7 +20,7 @@
         "type": "TextImageDataLoader",
         "args":{
             "data_dir": "out",
-            "batch_size": 64,
+            "batch_size": 16,
             "shuffle": true,
             "validation_split": 0.0,
             "num_workers": 4,
@@ -33,7 +33,7 @@
         "type": "TextImageDataLoaderForTest",
         "args":{
             "data_dir": "data_tests",
-            "batch_size": 64,
+            "batch_size": 16,
             "shuffle": true,
             "validation_split": 0.0,
             "num_workers": 4,
