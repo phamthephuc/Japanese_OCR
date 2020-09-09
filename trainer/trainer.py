@@ -97,8 +97,8 @@ class Trainer(BaseTrainer):
             # print(l)
             # print(t)
 
-
-            output_size = Variable(torch.IntTensor([output.size(0)] * batch_size))
+            # preds_size = torch.IntTensor([preds.size(1)] * batch_size)
+            output_size = Variable(torch.IntTensor([output.size(1)] * batch_size))
             loss = self.criterion(output, self.text, output_size, self.length) / batch_size
             self.model.zero_grad()
             loss.backward()
