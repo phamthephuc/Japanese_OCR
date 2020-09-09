@@ -86,10 +86,11 @@ class Trainer(BaseTrainer):
             self.optimizer.zero_grad()
 
             loadData(self.image, data)
-            output = self.model(self.image)
             t, l = self.converter.encode(target)
             loadData(self.text, t)
             loadData(self.length, l)
+
+            output = self.model(self.image, target)
             # print(target)
             # print(l)
             # print(t)
