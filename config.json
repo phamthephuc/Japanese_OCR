@@ -1,6 +1,6 @@
 {
     "name": "CRNN_Net",
-    "n_gpu": 2,
+    "n_gpu": 3,
 
     "arch": {
         "type": "Model",
