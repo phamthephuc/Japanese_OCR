@@ -90,7 +90,7 @@ class Trainer(BaseTrainer):
             loadData(self.text, t)
             loadData(self.length, l)
 
-            output = self.model(self.image, target)
+            output = self.model(self.image, self.text[:, :-1])
             # print(target)
             # print(l)
             # print(t)
