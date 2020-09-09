@@ -75,6 +75,7 @@ class Model(BaseModel):
         b, c, h, w = visual_feature.size()
         print(b, c, h, w)
         visual_feature = visual_feature.squeeze(3)
+        visual_feature = visual_feature.permute(1, 0, 2)  # [w, b, c]
         contextual_feature = self.SequenceModeling(visual_feature)
 
         return contextual_feature
