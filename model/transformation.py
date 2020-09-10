@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-device = torch.device('cuda:1')
+device = torch.device('cuda:2')
 
 
 class TPS_SpatialTransformerNetwork(nn.Module):
