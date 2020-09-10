@@ -51,9 +51,10 @@ class ImageTextDataset(Dataset):
                 if (label != label):
                     label = "NULL"
                 # print(index, label, label is None)
-                if (len(label) <= 23):
-                    imagePathList.append(filename)
-                    labelList.append(label)
+                if (len(label) <= 25):
+                    for i in range(self.lenTransfroms):
+                        imagePathList.append(filename)
+                        labelList.append(label)
                 # if (len(labelList) >= 1000):
                 #     break
         return imagePathList, labelList

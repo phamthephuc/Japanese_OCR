@@ -92,7 +92,7 @@ class Trainer(BaseTrainer):
             loadData(self.text, t)
             loadData(self.length, l)
 
-            output = self.model(self.image, self.text)
+            output = self.model(self.image)
             # print(target)
             # print(l)
             # print(t)
@@ -153,7 +153,7 @@ class Trainer(BaseTrainer):
                 loadData(self.text, t)
                 loadData(self.length, l)
 
-                output = self.model(self.image, self.text)
+                output = self.model(self.image)
 
 
                 output_size = Variable(torch.IntTensor([output.size(0)] * batch_size))
