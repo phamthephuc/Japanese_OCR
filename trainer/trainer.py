@@ -59,9 +59,12 @@ class Trainer(BaseTrainer):
         self.accuracies, self.character_error_rates, self.valid_epoches = self.getVaidArrayInfo()
 
     def getVaidArrayInfo(self):
-        with open('valid.json') as json_file:
-            data = json.load(json_file)
-            return data[0], data[1], data[2]
+        try:
+            with open('valid.json') as json_file:
+                data = json.load(json_file)
+                return data[0], data[1], data[2]
+        except:
+            return [], [], []
 
     def saveValidArray(self):
         data = [self.accuracies, self.character_error_rates, self.valid_epoches]
