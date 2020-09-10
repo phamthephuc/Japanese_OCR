@@ -104,6 +104,7 @@ class Trainer(BaseTrainer):
             # output_size = Variable(torch.IntTensor([output.size(0)] * batch_size))
             # loss = self.criterion(output, self.text, output_size, self.length) / batch_size
             targetReal = self.text[:, 1:]
+            _, output = output.max(2)
             print("output", output.view(-1, output.shape[-1]))
             print("targetReal", targetReal.contiguous().view(-1))
             loss = self.criterion(output.view(-1, output.shape[-1]), targetReal.contiguous().view(-1))
