@@ -3,12 +3,16 @@
     "n_gpu": 1,
 
     "arch": {
-        "type": "CRNN",
+        "type": "Model",
         "args": {
-            "imgH": 32,
-            "nc": 1,
-            "nclass": 4190,
-            "nh": 256
+            "imgH": 48,
+            "imgW": 850,
+            "input_channel": 1,
+            "output_channel": 512,
+            "num_fiducial": 20,
+            "hidden_size": 256,
+            "num_class": 4190,
+            "batch_max_length": 25
         }
     },
 
@@ -20,7 +24,7 @@
             "shuffle": true,
             "validation_split": 0.0,
             "num_workers": 4,
-            "imgH": 32,
+            "imgH": 48,
             "imgW": 850,
             "keep_ratio" : false
         }
@@ -33,7 +37,7 @@
             "shuffle": true,
             "validation_split": 0.0,
             "num_workers": 4,
-            "imgH": 32,
+            "imgH": 48,
             "imgW": 850,
             "keep_ratio" : false
         }
@@ -47,7 +51,7 @@
         }
     },
     "loss": {
-        "type": "CTCLoss",
+        "type": "CrossEntropyLoss",
         "args": {
 
         }

@@ -61,10 +61,10 @@ class Model(BaseModel):
         """ Sequence modeling"""
         self.SequenceModeling = nn.Sequential(
             BidirectionalLSTM(self.FeatureExtraction_output, hidden_size, hidden_size),
-            BidirectionalLSTM(hidden_size, hidden_size, num_class))
-        # self.SequenceModeling_output = hidden_size
-        #
-        # self.Prediction = Attention(self.SequenceModeling_output, hidden_size, num_class)
+            BidirectionalLSTM(hidden_size, hidden_size, hidden_size))
+        self.SequenceModeling_output = hidden_size
+
+        self.Prediction = Attention(self.SequenceModeling_output, hidden_size, num_class)
 
     def forward(self, input, text, is_train=True):
 
@@ -73,10 +73,10 @@ class Model(BaseModel):
         visual_feature = self.FeatureExtraction(input)
         visual_feature = self.AdaptiveAvgPool(visual_feature.permute(0, 3, 1, 2))  # [b, c, h, w] -> [b, w, c, h]
         visual_feature = visual_feature.squeeze(3)
-        visual_feature = visual_feature.permute(1, 0, 2)  # [w, b, c]
+        # visual_feature = visual_feature.permute(1, 0, 2)  # [w, b, c]
         contextual_feature = self.SequenceModeling(visual_feature)
 
-        return contextual_feature
-        # prediction = self.Prediction(contextual_feature.contiguous(), text, is_train, batch_max_length=self.batch_max_length)
+        # return contextual_feature
+        prediction = self.Prediction(contextual_feature.contiguous(), text, is_train, batch_max_length=self.batch_max_length)
 
-        # return prediction
+        return prediction

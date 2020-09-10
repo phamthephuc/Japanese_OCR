@@ -26,7 +26,7 @@ class Trainer(BaseTrainer):
         self.alphabet = full2half(self.alphabet)
         # self.alphabet = config["alphabet"];
         self.data_loader = data_loader
-        self.converter = strLabelConverter(self.alphabet)
+        self.converter = AttnLabelConverter(self.alphabet)
         if len_epoch is None:
             # epoch-based training
             self.len_epoch = len(self.data_loader)
@@ -92,16 +92,20 @@ class Trainer(BaseTrainer):
             loadData(self.text, t)
             loadData(self.length, l)
 
-            output = self.model(self.image)
+            output = self.model(self.image, self.text[:, :-1], True)
             # print(target)
             # print(l)
             # print(t)
 
             # preds_size = torch.IntTensor([preds.size(1)] * batch_size)
-            output_size = Variable(torch.IntTensor([output.size(0)] * batch_size))
-            loss = self.criterion(output, self.text, output_size, self.length) / batch_size
+            # output_size = Variable(torch.IntTensor([output.size(0)] * batch_size))
+            # loss = self.criterion(output, self.text, output_size, self.length) / batch_size
+            targetReal = self.text[:, 1:]
+            loss = self.criterion(output.view(-1, output.shape[-1]), targetReal.contiguous().view(-1))
+
             self.model.zero_grad()
             loss.backward()
+            torch.nn.utils.clip_grad_norm_(self.model.parameters(), 5)
             self.optimizer.step()
 
             # self.writer.set_step((epoch - 1) * self.len_epoch + batch_idx)
@@ -153,31 +157,47 @@ class Trainer(BaseTrainer):
                 loadData(self.text, t)
                 loadData(self.length, l)
 
-                output = self.model(self.image)
+                output = self.model(self.image, self.text[:, :-1], False)
+
+                output = output[:, :self.text.shape[1] - 1, :]
+                targetReal = self.text[:, 1:]  # without [GO] Symbol
+                loss = self.criterion(output.contiguous().view(-1, output.shape[-1]), targetReal.contiguous().view(-1))
+
+                # select max probabilty (greedy decoding) then decode index to character
+                _, preds_index = output.max(2)
+                preds_str = self.converter.decode(preds_index, self.length)
+                labels = self.converter.decode(self.text[:, 1:], self.length)
 
 
-                output_size = Variable(torch.IntTensor([output.size(0)] * batch_size))
-                loss = self.criterion(output, self.text, output_size, self.length) / batch_size
+
+                # output_size = Variable(torch.IntTensor([output.size(0)] * batch_size))
+                # loss = self.criterion(output, self.text, output_size, self.length) / batch_size
                 loss_avg.add(loss)
 
                 # self.writer.set_step((epoch - 1) * len(self.valid_data_loader) + batch_idx, 'valid')
                 # self.valid_metrics.update('loss', loss_avg.val())
 
-                _, output = output.max(2)
-                # preds = preds.squeeze(2)
-                output = output.transpose(1, 0).contiguous().view(-1)
-                sim_preds = self.converter.decode(output.data, output_size.data, raw=False)
-                for pred, tart in zip(sim_preds, target):
-                    if pred == tart:
+                # _, output = output.max(2)
+                # output = output.transpose(1, 0).contiguous().view(-1)
+                # sim_preds = self.converter.decode(output.data, output_size.data, raw=False)
+                for pred, gt in zip(preds_str, labels):
+                    gt = gt[:gt.find('[s]')]
+                    pred_EOS = pred.find('[s]')
+                    pred = pred[:pred_EOS]  # prune after "end of sentence" token ([s])
+
+                    if pred == gt:
                         n_correct += 1
-                    sum_character_error += countDifCharacter(pred, tart)
+                    sum_character_error += countDifCharacter(pred, gt)
                 # for met in self.metric_ftns:
                 #     self.valid_metrics.update(met.__name__, met(sim_preds, target))
                 # self.writer.add_image('input', make_grid(data.cpu(), nrow=8, normalize=True))
 
-        raw_preds = self.converter.decode(output.data, output_size.data, raw=True)[:self.test_disp]
-        for raw_pred, pred, gt in zip(raw_preds, sim_preds, target):
-            print('%-20s => %-20s, gt: %-20s' % (raw_pred, pred, gt))
+        # raw_preds = self.converter.decode(output.data, output_size.data, raw=True)[:self.test_disp]
+        for pred, gt in zip(preds_str, labels):
+            gt = gt[:gt.find('[s]')]
+            pred_EOS = pred.find('[s]')
+            pred = pred[:pred_EOS]  # prune after "end of sentence" token ([s])
+            print('%-20s => gt: %-20s' % (pred, gt))
 
         accuracy = n_correct / float(sizeDatas)
         character_error_rate = sum_character_error / float(sizeDatas)
