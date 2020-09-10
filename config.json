@@ -5,7 +5,7 @@
     "arch": {
         "type": "CRNN",
         "args": {
-            "imgH": 48,
+            "imgH": 32,
             "nc": 1,
             "nclass": 4190,
             "nh": 256
@@ -20,7 +20,7 @@
             "shuffle": true,
             "validation_split": 0.0,
             "num_workers": 4,
-            "imgH": 48,
+            "imgH": 32,
             "imgW": 850,
             "keep_ratio" : false
         }
@@ -33,7 +33,7 @@
             "shuffle": true,
             "validation_split": 0.0,
             "num_workers": 4,
-            "imgH": 48,
+            "imgH": 32,
             "imgW": 850,
             "keep_ratio" : false
         }
