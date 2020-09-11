@@ -11,7 +11,7 @@
             "output_channel": 512,
             "num_fiducial": 20,
             "hidden_size": 256,
-            "num_class": 4191,
+            "num_class": 4192,
             "batch_max_length": 25
         }
     },
