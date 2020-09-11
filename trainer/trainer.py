@@ -27,6 +27,7 @@ class Trainer(BaseTrainer):
         # self.alphabet = config["alphabet"];
         self.data_loader = data_loader
         self.converter = AttnLabelConverter(self.alphabet)
+        print("converter Length : ", len(self.converter.character))
         if len_epoch is None:
             # epoch-based training
             self.len_epoch = len(self.data_loader)
@@ -104,9 +105,9 @@ class Trainer(BaseTrainer):
             # output_size = Variable(torch.IntTensor([output.size(0)] * batch_size))
             # loss = self.criterion(output, self.text, output_size, self.length) / batch_size
             targetReal = self.text[:, 1:]
-            _, output = output.max(2)
-            print("output", output.view(-1, output.shape[-1]))
-            print("targetReal", targetReal.contiguous().view(-1))
+
+            # print("output", output.view(-1, output.shape[-1]))
+            # print("targetReal", targetReal.contiguous().view(-1))
             loss = self.criterion(output.view(-1, output.shape[-1]), targetReal.contiguous().view(-1))
 
             self.model.zero_grad()
