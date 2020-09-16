@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-device = torch.device('cuda:2')
+from defination import device
 
 
 class TPS_SpatialTransformerNetwork(nn.Module):
@@ -80,6 +80,7 @@ class LocalizationNetwork(nn.Module):
         """
         batch_size = batch_I.size(0)
         features = self.conv(batch_I).view(batch_size, -1)
+        print(features.shape)
         batch_C_prime = self.localization_fc2(self.localization_fc1(features)).view(batch_size, self.F, 2)
         return batch_C_prime
 

@@ -8,7 +8,9 @@ import model.crnn as module_arch
 from parse_config import ConfigParser
 import csv
 from torch.autograd import Variable
-from utils import inf_loop, MetricTracker, strLabelConverter, averager, loadData, loadDataImage, countDifCharacter, full2half
+from utils import *
+
+from defination import device
 
 def main(config):
     logger = config.get_logger('test')
@@ -26,7 +28,7 @@ def main(config):
     file_alphabet = open("alphabet.txt")
     alphabet = file_alphabet.read()
     alphabet = full2half(alphabet)
-    converter = strLabelConverter(alphabet)
+    converter = AttnLabelConverter(alphabet)
     logger.info('Loading checkpoint: {} ...'.format(config.resume))
     checkpoint = torch.load(config.resume)
     state_dict = checkpoint['state_dict']
@@ -34,12 +36,15 @@ def main(config):
     opt = config["data_loader_test"]["args"]
     batch_size = opt["batch_size"]
     image = torch.FloatTensor(batch_size, 3, opt["imgH"], opt["imgH"])
-    text = torch.IntTensor(batch_size * 5)
+    text = torch.LongTensor(batch_size * 5)
     length = torch.IntTensor(batch_size)
 
     if torch.cuda.is_available():
-        image = image.cuda()
-        criterion = criterion.cuda()
+        image = image.to(device)
+        text = text.to(device)
+        length = length.to(device)
+        criterion = criterion.to(device)
+        model = model.to(device)
     image = Variable(image)
     text = Variable(text)
     length = Variable(length)
@@ -50,7 +55,7 @@ def main(config):
     model.load_state_dict(state_dict)
 
     # prepare model for testing
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    # device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = model.to(device)
     model.eval()
 
@@ -71,33 +76,45 @@ def main(config):
             text, length = converter.encode(target)
 
             loadData(image, data)
-            output = model(image)
             t, l = converter.encode(target)
             loadData(text, t)
             loadData(length, l)
 
-            output_size = Variable(torch.IntTensor([output.size(0)] * batch_size))
-            loss = criterion(output, text, output_size, length) / batch_size
+            output = model(image, text[:, :-1], False)
+            output = output[:, :text.shape[1] - 1, :]
+            targetReal = text[:, 1:]  # without [GO] Symbol
+            loss = criterion(output.contiguous().view(-1, output.shape[-1]), targetReal.contiguous().view(-1))
             loss_avg.add(loss)
+
+            _, preds_index = output.max(2)
+            preds_str = converter.decode(preds_index, length)
+            labels = converter.decode(text[:, 1:], length)
+
+            # output_size = Variable(torch.IntTensor([output.size(0)] * batch_size))
+            # loss = criterion(output, text, output_size, length) / batch_size
+            # loss_avg.add(loss)
 
             # self.writer.set_step((epoch - 1) * len(self.valid_data_loader) + batch_idx, 'valid')
             # self.valid_metrics.update('loss', loss_avg.val())
 
-            _, output = output.max(2)
-            # preds = preds.squeeze(2)
-            output = output.transpose(1, 0).contiguous().view(-1)
-            sim_preds = converter.decode(output.data, output_size.data, raw=False)
+            # _, output = output.max(2)
+            # # preds = preds.squeeze(2)
+            # output = output.transpose(1, 0).contiguous().view(-1)
+            # sim_preds = converter.decode(output.data, output_size.data, raw=False)
             with open('result.csv', 'a', newline='') as csvfile:
                 spamwriter = csv.writer(csvfile)
 
-                for pred, tart in zip(sim_preds, target):
-                    tart = tart.lower()
-                    if pred == tart:
+                for pred, gt in zip(preds_str, labels):
+                    gt = gt[:gt.find('[s]')]
+                    pred_EOS = pred.find('[s]')
+                    pred = pred[:pred_EOS]  # prune after "end of sentence" token ([s])
+
+                    if pred == gt:
                         n_correct += 1
-                        spamwriter.writerow([tart, pred, "OK"])
+                        spamwriter.writerow([gt, pred, "OK"])
                     else:
-                        spamwriter.writerow([tart, pred, "NG"])
-                    sum_character_error += countDifCharacter(pred, tart)
+                        spamwriter.writerow([gt, pred, "NG"])
+                    sum_character_error += countDifCharacter(pred, gt)
 
 
 
@@ -105,9 +122,15 @@ def main(config):
             #     self.valid_metrics.update(met.__name__, met(sim_preds, target))
             # self.writer.add_image('input', make_grid(data.cpu(), nrow=8, normalize=True))
 
-        raw_preds = converter.decode(output.data, output_size.data, raw=True)
-        for raw_pred, pred, gt in zip(raw_preds, sim_preds, target):
-            print('%-20s => %-20s, gt: %-20s' % (raw_pred, pred, gt))
+        # raw_preds = converter.decode(output.data, output_size.data, raw=True)
+        # for pred, gt in zip(raw_preds, sim_preds, target):
+        #     print('%-20s => %-20s, gt: %-20s' % (raw_pred, pred, gt))
+
+        for pred, gt in zip(preds_str, labels):
+            gt = gt[:gt.find('[s]')]
+            pred_EOS = pred.find('[s]')
+            pred = pred[:pred_EOS]  # prune after "end of sentence" token ([s])
+            print('%-20s => gt: %-20s' % (pred, gt))
 
         accuracy = n_correct / float(sizeDatas)
         character_error_rate = sum_character_error / float(sizeDatas)

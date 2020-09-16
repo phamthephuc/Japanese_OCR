@@ -10,7 +10,7 @@ import pandas as pd
 from pathlib import Path
 from itertools import repeat
 from collections import OrderedDict
-
+from defination import device
 
 def ensure_dir(dirname):
     dirname = Path(dirname)
@@ -149,7 +149,7 @@ class AttnLabelConverter(object):
         self.character = list_token + list_character
 
         self.dict = {}
-        self.device = torch.device('cuda:2' if torch.cuda.is_available() else 'cpu')
+        self.device = device
         for i, char in enumerate(self.character):
             # print(i, char)
             self.dict[char] = i
