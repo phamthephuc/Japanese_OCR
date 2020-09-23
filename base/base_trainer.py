@@ -144,11 +144,11 @@ class BaseTrainer:
         #                         "on this machine.".format(n_gpu_use, n_gpu))
         #     n_gpu_use = n_gpu
 
-        device = torch.device('cuda:1' if n_gpu_use > 0 else 'cpu')
+        device = torch.device('cuda:2' if n_gpu_use > 0 else 'cpu')
         list_ids = list(range(n_gpu_use))
         if (len(list_ids) > 0):
-            device = torch.device('cuda:1')
-            list_ids = [1]
+            device = torch.device('cuda:2')
+            list_ids = [2]
         return device, list_ids
 
     def _save_checkpoint(self, epoch, save_best=False):
