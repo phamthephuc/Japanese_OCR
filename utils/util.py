@@ -239,11 +239,14 @@ def countDifCharacter(predict, target):
     lenTarget = len(target)
     minLen = min(lenPredit, lenTarget)
     difLen = abs(lenPredit - lenTarget)
-    dif = difLen
+    if (lenTarget != minLen):
+        dif = difLen
+    else:
+        dif = 0
     for i in range(minLen):
         if (predict[i] != target[i]):
             dif += 1
-    return difLen / lenTarget
+    return dif / lenTarget
 
 def prettyPrint(v):
     print('Size {0}, Type: {1}'.format(str(v.size()), v.data.type()))
