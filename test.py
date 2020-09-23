@@ -111,6 +111,7 @@ def main(config):
 
                     if pred == gt:
                         n_correct += 1
+                        print("right Recognize: " + pred)
                         spamwriter.writerow([gt, pred, "OK"])
                     else:
                         spamwriter.writerow([gt, pred, "NG"])
