@@ -45,7 +45,7 @@
     "optimizer": {
         "type": "Adam",
         "args":{
-            "lr": 0.01,
+            "lr": 0.05,
             "weight_decay": 0,
             "amsgrad": true
         }
@@ -67,10 +67,10 @@
         }
     },
     "trainer": {
-        "epochs": 200,
+        "epochs": 5000,
         "valid_period": 1,
         "save_dir": "saved/",
-        "save_period": 100,
+        "save_period": 500,
         "verbosity": 2,
         "test_disp": 10,
         "monitor": "off",
