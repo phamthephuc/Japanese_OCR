@@ -5,8 +5,8 @@
     "arch": {
         "type": "Model",
         "args": {
-            "imgH": 48,
-            "imgW": 850,
+            "imgH": 32,
+            "imgW": 660,
             "input_channel": 1,
             "output_channel": 512,
             "num_fiducial": 20,
@@ -24,8 +24,8 @@
             "shuffle": true,
             "validation_split": 0.5,
             "num_workers": 4,
-            "imgH": 48,
-            "imgW": 850,
+            "imgH": 32,
+            "imgW": 660,
             "keep_ratio" : false
         }
     },
@@ -37,8 +37,8 @@
             "shuffle": true,
             "validation_split": 0.0,
             "num_workers": 4,
-            "imgH": 48,
-            "imgW": 850,
+            "imgH": 32,
+            "imgW": 660,
             "keep_ratio" : false
         }
     },
