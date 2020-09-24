@@ -45,7 +45,7 @@
     "optimizer": {
         "type": "Adam",
         "args":{
-            "lr": 0.008,
+            "lr": 0.01,
             "weight_decay": 0,
             "amsgrad": true
         }
@@ -70,7 +70,7 @@
         "epochs": 200,
         "valid_period": 1,
         "save_dir": "saved/",
-        "save_period": 1,
+        "save_period": 100,
         "verbosity": 2,
         "test_disp": 10,
         "monitor": "off",
