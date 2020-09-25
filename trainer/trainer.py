@@ -47,7 +47,7 @@ class Trainer(BaseTrainer):
         opt = config["data_loader"]["args"]
         batchSize = opt["batch_size"]
         batch_max_length = config["arch"]["args"]["batch_max_length"]
-        self.image = torch.FloatTensor(batchSize, 3, opt["imgH"], opt["imgH"])
+        self.image = torch.FloatTensor(batchSize, 1, opt["imgH"], opt["imgW"])
         # self.text = torch.LongTensor(batchSize * 5)
         # self.length = torch.IntTensor(batchSize)
         self.text = torch.LongTensor(batchSize, batch_max_length + 1)
@@ -100,7 +100,7 @@ class Trainer(BaseTrainer):
             loadData(self.text, t)
             loadData(self.length, l)
 
-            print("image shape",self.image.shape)
+            # print("image shape",self.image.shape)
             output = self.model(self.image, self.text[:, :-1], True)
             # print(target)
             # print(l)
@@ -110,6 +110,7 @@ class Trainer(BaseTrainer):
             # output_size = Variable(torch.IntTensor([output.size(0)] * batch_size))
             # loss = self.criterion(output, self.text, output_size, self.length) / batch_size
             targetReal = self.text[:, 1:]
+            print(targetReal)
 
             # print("output", output.view(-1, output.shape[-1]).shape)
             # print("targetReal", targetReal.contiguous().view(-1).shape)
