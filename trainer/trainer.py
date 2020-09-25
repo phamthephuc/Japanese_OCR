@@ -26,7 +26,7 @@ class Trainer(BaseTrainer):
         self.alphabet = full2half(self.alphabet)
         # self.alphabet = config["alphabet"];
         self.data_loader = data_loader
-        print(self.alphabet)
+        print("alphabet: ", self.alphabet)
         self.converter = AttnLabelConverter(self.alphabet)
         print("converter Length : ", len(self.converter.character))
         if len_epoch is None:
