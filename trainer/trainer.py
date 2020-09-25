@@ -46,7 +46,7 @@ class Trainer(BaseTrainer):
 
         opt = config["data_loader"]["args"]
         batchSize = opt["batch_size"]
-        batch_max_length = opt["arch"]["args"]["batch_max_length"]
+        batch_max_length = config["arch"]["args"]["batch_max_length"]
         self.image = torch.FloatTensor(batchSize, 3, opt["imgH"], opt["imgH"])
         # self.text = torch.LongTensor(batchSize * 5)
         # self.length = torch.IntTensor(batchSize)
