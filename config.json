@@ -20,7 +20,7 @@
         "type": "TextImageDataLoader",
         "args":{
             "data_dir": "test_fix",
-            "batch_size": 2,
+            "batch_size": 1,
             "shuffle": true,
             "validation_split": 0.5,
             "num_workers": 4,
