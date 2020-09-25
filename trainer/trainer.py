@@ -107,8 +107,8 @@ class Trainer(BaseTrainer):
             # loss = self.criterion(output, self.text, output_size, self.length) / batch_size
             targetReal = self.text[:, 1:]
 
-            # print("output", output.view(-1, output.shape[-1]))
-            # print("targetReal", targetReal.contiguous().view(-1))
+            print("output", output.view(-1, output.shape[-1]).shape)
+            print("targetReal", targetReal.contiguous().view(-1).shape)
             loss = self.criterion(output.view(-1, output.shape[-1]), targetReal.contiguous().view(-1))
 
             self.model.zero_grad()
